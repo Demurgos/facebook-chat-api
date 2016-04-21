@@ -5,30 +5,34 @@ import {Api, ApiContext, ApiIO} from "./interfaces/api";
 
 // Method generators
 import getAddUserToGroup from "./api/addUserToGroup";
-import {getChangeArchivedStatus} from "./api/changeArchivedStatus";
-import {getChangeGroupImage} from "./api/changeGroupImage";
-import {getChangeNickname} from "./api/changeNickname";
-import {getChangeThreadColor} from "./api/changeThreadColor";
-import {getChangeThreadEmoji} from "./api/changeThreadEmoji";
-import {getDeleteMessage} from "./api/deleteMessage";
-import {getDeleteThread} from "./api/deleteThread";
-import {getGetCurrentUserID} from "./api/getCurrentUserID";
-import {getGetFriendsList} from "./api/getFriendsList";
-import {getGetOnlineUsers} from "./api/getOnlineUsers";
-import {getGetThreadList} from "./api/getThreadList";
-import {getGetUserID} from "./api/getUserID";
-import {getGetUserInfo} from "./api/getUserInfo";
-import {getListen} from "./api/listen";
-import {getLogout} from "./api/logout";
-import {getMarkAsRead} from "./api/markAsRead";
-import {getRemoveUserFromGroup} from "./api/removeUserFromGroup";
-import {getSearchForThread} from "./api/searchForThread";
-import {getSendMessage} from "./api/sendMessage";
-import {getSendTypingIndicator} from "./api/sendTypingIndicator";
-import {getSetTitle} from "./api/setTitle";
+import getChangeArchivedStatus from "./api/changeArchivedStatus";
+import getChangeGroupImage from "./api/changeGroupImage";
+import getChangeNickname from "./api/changeNickname";
+import getChangeThreadColor from "./api/changeThreadColor";
+import getChangeThreadEmoji from "./api/changeThreadEmoji";
+import getDeleteMessage from "./api/deleteMessage";
+import getDeleteThread from "./api/deleteThread";
+import getGetCurrentUserID from "./api/getCurrentUserID";
+import getGetFriendsList from "./api/getFriendsList";
+import getGetOnlineUsers from "./api/getOnlineUsers";
+import getGetThreadHistory from "./api/getThreadHistory";
+import getGetThreadInfo from "./api/getThreadInfo";
+import getGetThreadList from "./api/getThreadList";
+import getGetUserID from "./api/getUserID";
+import getGetUserInfo from "./api/getUserInfo";
+import getListen from "./api/listen";
+import getLogout from "./api/logout";
+import getMarkAsRead from "./api/markAsRead";
+import getRemoveUserFromGroup from "./api/removeUserFromGroup";
+import getSearchForThread from "./api/searchForThread";
+import getSendMessage from "./api/sendMessage";
+import getSendTypingIndicator from "./api/sendTypingIndicator";
+import getSetTitle from "./api/setTitle";
 
 function getApi (defaultFuncs: ApiIO, api: Api, ctx: ApiContext): Api {
   return {
+    setOptions: api.setOptions,
+    getAppState: api.getAppState,
     addUserToGroup: getAddUserToGroup(defaultFuncs, api, ctx),
     changeArchivedStatus: getChangeArchivedStatus(defaultFuncs, api, ctx),
     changeGroupImage: getChangeGroupImage(defaultFuncs, api, ctx),
@@ -40,6 +44,8 @@ function getApi (defaultFuncs: ApiIO, api: Api, ctx: ApiContext): Api {
     getCurrentUserID: getGetCurrentUserID(defaultFuncs, api, ctx),
     getFriendsList: getGetFriendsList(defaultFuncs, api, ctx),
     getOnlineUsers: getGetOnlineUsers(defaultFuncs, api, ctx),
+    getThreadHistory: getGetThreadHistory(defaultFuncs, api, ctx),
+    getThreadInfo: getGetThreadInfo(defaultFuncs, api, ctx),
     getThreadList: getGetThreadList(defaultFuncs, api, ctx),
     getUserID: getGetUserID(defaultFuncs, api, ctx),
     getUserInfo: getGetUserInfo(defaultFuncs, api, ctx),
@@ -84,33 +90,6 @@ export function buildAPI(globalOptions, html, jar): [ApiContext, ApiIO, Api] {
       return utils.getAppState(jar);
     },
   };
-
-  var apiFuncNames = [
-    'addUserToGroup',
-    'changeArchivedStatus',
-    'changeGroupImage',
-    'changeThreadColor',
-    'changeThreadEmoji',
-    'changeNickname',
-    'deleteMessage',
-    'deleteThread',
-    'getCurrentUserID',
-    'getFriendsList',
-    'getOnlineUsers',
-    'getThreadHistory',
-    'getThreadInfo',
-    'getThreadList',
-    'getUserID',
-    'getUserInfo',
-    'listen',
-    'logout',
-    'markAsRead',
-    'removeUserFromGroup',
-    'searchForThread',
-    'sendMessage',
-    'sendTypingIndicator',
-    'setTitle',
-  ];
 
   var defaultFuncs: ApiIO = utils.makeDefaults(html, userID);
 
