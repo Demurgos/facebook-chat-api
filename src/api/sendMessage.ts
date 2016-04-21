@@ -9,7 +9,7 @@ var allowedProperties = {
   body: true,
 };
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getSendMessage (defaultFuncs, api, ctx) {
   function uploadAttachment(attachments, callback) {
     var uploads = [];
 
@@ -279,4 +279,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         () => handleUrl(msg, form, callback,
           () => send(form, threadID, messageAndOTID, callback))));
   };
-};
+}
+
+export default getSendMessage;

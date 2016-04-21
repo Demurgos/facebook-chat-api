@@ -8,7 +8,7 @@ interface Form {
   request_user_id?: string;
 }
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getGetThreadList (defaultFuncs, api, ctx) {
   return function getThreadList(start, end, callback) {
     if(!callback && utils.getType(end) !== 'Number') {
       throw {error: "please pass an number as a second argument."};
@@ -45,4 +45,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getGetThreadList;

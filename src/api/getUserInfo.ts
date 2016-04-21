@@ -24,7 +24,7 @@ function formatData(data) {
   return retObj;
 }
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getGetUserInfo (defaultFuncs, api, ctx) {
   return function getUserInfo(id, callback) {
     if(!callback) {
       throw {error: "getUserInfo: need callback"};
@@ -51,4 +51,6 @@ module.exports = function(defaultFuncs, api, ctx) {
       return callback(err);
     });
   };
-};
+}
+
+export default getGetUserInfo;

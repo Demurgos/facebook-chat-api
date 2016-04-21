@@ -1,6 +1,6 @@
 import * as utils from "../utils";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getSearchForThread (defaultFuncs, api, ctx) {
   return function searchForThread(name, callback) {
     if (!callback) {
       throw {error: "searchForThread: need callback"};
@@ -28,4 +28,6 @@ module.exports = function(defaultFuncs, api, ctx) {
           .threads.map(utils.formatThread));
       });
   };
-};
+}
+
+export default getSearchForThread;

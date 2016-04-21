@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import * as log from "npmlog";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getAddUserToGroup (defaultFuncs, api, ctx) {
   return function addUserToGroup(userID, threadID, callback) {
     if(!callback && utils.getType(threadID) === 'Function') {
       throw {error: "please pass a threadID as a second argument."};
@@ -72,4 +72,6 @@ module.exports = function(defaultFuncs, api, ctx) {
       return callback(err);
     });
   };
-};
+}
+
+export default getAddUserToGroup;

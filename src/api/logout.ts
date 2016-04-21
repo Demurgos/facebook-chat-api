@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import * as log from "npmlog";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getLogout (defaultFuncs, api, ctx) {
   return function logout(callback) {
     callback = callback || function() {};
 
@@ -50,4 +50,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getLogout;

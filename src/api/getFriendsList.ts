@@ -37,7 +37,7 @@ function formatData(obj) {
   });
 }
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getGetFriendsList (defaultFuncs, api, ctx) {
   return function getFriendsList(callback) {
     if(!callback) {
       throw {error: "getFriendsList: need callback"};
@@ -60,4 +60,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getGetFriendsList;

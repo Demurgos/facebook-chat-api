@@ -2,7 +2,7 @@ import * as Bluebird from "bluebird";
 import * as utils from "../utils";
 import * as log from "npmlog";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getChangeGroupImage (defaultFuncs, api, ctx) {
   function handleUpload(image, callback) {
     var uploads = [];
 
@@ -103,4 +103,6 @@ module.exports = function(defaultFuncs, api, ctx) {
 
     });
   };
-};
+}
+
+export default getChangeGroupImage;

@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import * as log from "npmlog";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getChangeArchivedStatus (defaultFuncs, api, ctx) {
   return function changeArchivedStatus(threadOrThreads, archive, callback) {
     if(!callback) {
       callback = function(){};
@@ -32,4 +32,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getChangeArchivedStatus;

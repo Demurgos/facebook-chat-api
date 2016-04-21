@@ -22,7 +22,7 @@ function formatData(availableList, lastActiveTimes, time) {
   });
 }
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getGetOnlineUsers (defaultFuncs, api, ctx) {
   return function getOnlineUsers(callback) {
     if(!callback) {
       callback = function(){};
@@ -49,4 +49,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getGetOnlineUsers;

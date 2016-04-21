@@ -2,103 +2,8 @@ import * as utils from "./utils";
 import * as cheerio from "cheerio";
 import * as log from "npmlog";
 import * as fs from "fs";
-
-function setOptions(globalOptions, options) {
-  Object.keys(options).map(function(key) {
-    switch (key) {
-      case 'logLevel':
-        log.level = options.logLevel;
-        globalOptions.logLevel = options.logLevel;
-        break;
-      case 'selfListen':
-        globalOptions.selfListen = options.selfListen;
-        break;
-      case 'listenEvents':
-        globalOptions.listenEvents = options.listenEvents;
-        break;
-      case 'pageID':
-        globalOptions.pageID = options.pageID.toString();
-        break;
-      case 'updatePresence':
-        globalOptions.updatePresence = options.updatePresence;
-        break;
-      case 'forceLogin':
-        globalOptions.forceLogin = options.forceLogin;
-        break;
-      default:
-        log.warn('Unrecognized option given to setOptions', key);
-        break;
-    }
-  });
-}
-
-function buildAPI(globalOptions, html, jar) {
-  var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(val) {
-    return val.cookieString().split("=")[0] === "c_user";
-  });
-
-  if(maybeCookie.length === 0) {
-    throw {error: "Error retrieving userID. This can be caused by a lot of things, including getting blocked by Facebook for logging in from an unknown location. Try logging in with a browser to verify."};
-  }
-
-  var userID = maybeCookie[0].cookieString().split("=")[1].toString();
-  log.info("Logged in");
-
-  var clientID = (Math.random() * 2147483648 | 0).toString(16);
-
-  // All data available to api functions
-  var ctx = {
-    userID: userID,
-    jar: jar,
-    clientID: clientID,
-    globalOptions: globalOptions,
-    loggedIn: true,
-    access_token: 'NONE'
-  };
-
-  var api = {
-    setOptions: setOptions.bind(null, globalOptions),
-    getAppState: function getAppState() {
-      return utils.getAppState(jar);
-    },
-  };
-
-  var apiFuncNames = [
-    'addUserToGroup',
-    'changeArchivedStatus',
-    'changeGroupImage',
-    'changeThreadColor',
-    'changeThreadEmoji',
-    'changeNickname',
-    'deleteMessage',
-    'deleteThread',
-    'getCurrentUserID',
-    'getFriendsList',
-    'getOnlineUsers',
-    'getThreadHistory',
-    'getThreadInfo',
-    'getThreadList',
-    'getUserID',
-    'getUserInfo',
-    'listen',
-    'logout',
-    'markAsRead',
-    'removeUserFromGroup',
-    'searchForThread',
-    'sendMessage',
-    'sendTypingIndicator',
-    'setTitle',
-  ];
-
-  var defaultFuncs = utils.makeDefaults(html, userID);
-
-  // Load all api functions in a loop
-  apiFuncNames.map(function(v) {
-    api[v] = require('./src/' + v)(defaultFuncs, api, ctx);
-  });
-
-  return [ctx, defaultFuncs, api];
-}
+import {buildAPI} from "./api";
+import {setOptions} from "./options";
 
 function makeLogin(jar, email, password, loginOptions, callback) {
   return function(res) {
@@ -427,4 +332,4 @@ function login(loginData, options, callback) {
   loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback);
 }
 
-module.exports = login;
+export = login;

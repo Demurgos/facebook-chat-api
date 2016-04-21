@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import * as log from "npmlog";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getDeleteThread (defaultFuncs, api, ctx) {
   return function deleteThread(threadOrThreads, callback) {
     if(!callback) {
       callback = function(){};
@@ -34,4 +34,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getDeleteThread;

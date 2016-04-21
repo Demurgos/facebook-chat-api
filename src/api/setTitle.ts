@@ -1,7 +1,8 @@
 import * as utils from "../utils";
 import * as log from "npmlog";
+import {get} from "../utils";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getSetTitle (defaultFuncs, api, ctx) {
   return function setTitle(newTitle, threadID, callback) {
     if(!callback && utils.getType(threadID) === 'Function') {
       throw {error: "please pass a threadID as a second argument."};
@@ -63,4 +64,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getSetTitle;

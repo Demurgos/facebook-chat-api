@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import * as log from "npmlog";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getSendTypingIndicator (defaultFuncs, api, ctx) {
   function makeTypingIndicator(typ, threadID, callback) {
     var form = {
       typ: +typ,
@@ -51,4 +51,6 @@ module.exports = function(defaultFuncs, api, ctx) {
       makeTypingIndicator(false, threadID, cb || function() {});
     };
   };
-};
+}
+
+export default getSendTypingIndicator;

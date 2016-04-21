@@ -2,6 +2,7 @@ import * as Bluebird from "bluebird";
 import * as _request from "request";
 import * as stream from "stream";
 import * as log from "npmlog";
+import {ApiIO} from "./interfaces/api";
 
 type _requestType = typeof _request;
 interface promisifiedRequest extends _requestType {
@@ -466,7 +467,7 @@ export function genTimestampRelative() {
   return d.getHours() + ":" + padZeros(d.getMinutes());
 }
 
-export function makeDefaults(html, userID) {
+export function makeDefaults(html, userID): ApiIO {
   var reqCounter = 1;
   var fb_dtsg = getFrom(html, "name=\"fb_dtsg\" value=\"", "\"");
   var ttstamp = "";

@@ -6,7 +6,7 @@ interface Form {
   request_user_id?: string;
 }
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getGetThreadHistory (defaultFuncs, api, ctx) {
   return function getThreadHistory(threadID, start, end, timestamp, callback) {
     if(!callback) callback = function() {};
 
@@ -64,4 +64,6 @@ module.exports = function(defaultFuncs, api, ctx) {
     });
 
   };
-};
+}
+
+export default getGetThreadHistory;

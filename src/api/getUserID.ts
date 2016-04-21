@@ -14,7 +14,7 @@ function formatData(data) {
   };
 }
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getGetUserID (defaultFuncs, api, ctx) {
   return function getUserID(name, callback) {
     if(!callback) {
       throw {error: "getUserID: need callback"};
@@ -50,4 +50,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getGetUserID;

@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import * as log from "npmlog";
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getChangeThreadEmoji (defaultFuncs, api, ctx) {
   return function changeThreadEmoji(emoji, threadID, callback) {
     var form = {
       'emoji_choice' : emoji,
@@ -26,4 +26,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         return callback(err);
       });
   };
-};
+}
+
+export default getChangeThreadEmoji;

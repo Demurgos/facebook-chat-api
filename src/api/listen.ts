@@ -20,7 +20,7 @@ interface Form {
   traceid?: string;
 }
 
-module.exports = function(defaultFuncs, api, ctx) {
+export function getListen (defaultFuncs, api, ctx) {
   var currentlyRunning = null;
   var globalCallback: (err?: Error, result?: any) => any = identity;
 
@@ -239,4 +239,6 @@ module.exports = function(defaultFuncs, api, ctx) {
 
     return stopListening;
   };
-};
+}
+
+export default getListen;
