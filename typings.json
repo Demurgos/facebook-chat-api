@@ -1,0 +1,13 @@
+{
+  "ambientDependencies": {
+    "node": "registry:dt/node#4.0.0+20160412142033"
+  },
+  "ambientDevDependencies": {
+    "mocha": "registry:dt/mocha#2.2.5+20160317120654"
+  },
+  "dependencies": {
+    "bluebird": "registry:npm/bluebird#3.3.4+20160411163813",
+    "cheerio": "github:volox/typed-cheerio#66bf518dec0e175fc5b08961304bdbf9bd29f8e5",
+    "request": "registry:npm/request#2.69.0+20160304121250"
+  }
+}

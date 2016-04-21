@@ -5,9 +5,10 @@
     "outDir": "build"
   },
   "exclude": [
+    "build",
     "node_modules",
+    "test",
     "typings/browser",
-    "typings/browser.d.ts",
-    "test"
+    "typings/browser.d.ts"
   ]
 }
