@@ -1,7 +1,24 @@
+# Dependencies
 node_modules
+
+# Build directory
+build
+
+# Temporary files
+logs
+*.log
+npm-debug.log*
+pids
+*.pid
+*.seed
+
+# Other
 facebook
 test-bot.js
 test-bot-config.json
 
 test/test-config.json
 test/test-appstate.json
+
+# Editors
+.idea
