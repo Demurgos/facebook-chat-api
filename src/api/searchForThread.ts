@@ -1,6 +1,4 @@
-"use strict";
-
-var utils = require("../utils");
+import * as utils from "../utils";
 
 module.exports = function(defaultFuncs, api, ctx) {
   return function searchForThread(name, callback) {

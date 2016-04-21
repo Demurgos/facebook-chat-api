@@ -1,8 +1,6 @@
-"use strict";
-
-var utils = require("../utils");
-var log = require("npmlog");
-var bluebird = require("bluebird");
+import * as Bluebird from "bluebird";
+import * as utils from "../utils";
+import * as log from "npmlog";
 
 module.exports = function(defaultFuncs, api, ctx) {
   function handleUpload(image, callback) {
@@ -25,7 +23,7 @@ module.exports = function(defaultFuncs, api, ctx) {
       }));
 
     // resolve all promises
-    bluebird
+    Bluebird
       .all(uploads)
       .then(function(resData) {
         callback(null, resData);

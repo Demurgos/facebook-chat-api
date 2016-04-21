@@ -1,9 +1,7 @@
-"use strict";
-
-var utils = require("./utils");
-var cheerio = require("cheerio");
-var log = require("npmlog");
-var fs = require("fs");
+import * as utils from "./utils";
+import * as cheerio from "cheerio";
+import * as log from "npmlog";
+import * as fs from "fs";
 
 function setOptions(globalOptions, options) {
   Object.keys(options).map(function(key) {
@@ -269,7 +267,7 @@ function loginHelper(appState, email, password, globalOptions, callback) {
   if(appState) {
     appState.map(function(c) {
       var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
-      jar.setCookie(str, "http://" + c.domain);
+      jar.setCookie(<any> str, "http://" + c.domain); // TODO: depends on github:louy/typed-request/issues/1
     });
 
     // Load the main page.

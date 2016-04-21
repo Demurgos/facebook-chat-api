@@ -1,14 +1,28 @@
-"use strict";
-
-var utils = require("../utils");
-var log = require("npmlog");
+import * as utils from "../utils";
+import * as log from "npmlog";
 
 var msgsRecv = 0;
 var identity = function() {};
 
+interface Form {
+  channel: string;
+  seq: string;
+  partition: string;
+  clientid: string;
+  viewer_uid: string;
+  uid: string;
+  state: "active";
+  idle: number;
+  cap: string;
+  msgs_recv: number;
+  sticky_token?: string;
+  sticky_pool?: string;
+  traceid?: string;
+}
+
 module.exports = function(defaultFuncs, api, ctx) {
   var currentlyRunning = null;
-  var globalCallback = identity;
+  var globalCallback: (err?: Error, result?: any) => any = identity;
 
   var stopListening = function() {
     globalCallback = identity;
@@ -22,7 +36,7 @@ module.exports = function(defaultFuncs, api, ctx) {
   var tmpPrev = Date.now();
   var lastSync = Date.now();
 
-  var form = {
+  let form: Form = {
     'channel' : 'p_' + ctx.userID,
     'seq' : '0',
     'partition' : '-2',
@@ -32,7 +46,7 @@ module.exports = function(defaultFuncs, api, ctx) {
     'state' : 'active',
     'idle' : 0,
     'cap' : '8',
-    'msgs_recv':msgsRecv
+    'msgs_recv': msgsRecv
   };
 
   /**
@@ -117,7 +131,6 @@ module.exports = function(defaultFuncs, api, ctx) {
               }
 
               return globalCallback(null, utils.formatTyp(v));
-              break;
             case 'buddylist_overlay':
               // TODO: what happens when you're logged in as a page?
               if(!ctx.globalOptions.updatePresence) {
@@ -159,7 +172,6 @@ module.exports = function(defaultFuncs, api, ctx) {
               }
 
               return globalCallback(null, fmtMsg);
-              break;
             case 'pages_messaging':
               if(!ctx.globalOptions.pageID ||
                 v.event !== "deliver" ||

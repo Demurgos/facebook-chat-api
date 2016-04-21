@@ -1,7 +1,5 @@
-"use strict";
-
-var utils = require("../utils");
-var log = require("npmlog");
+import * as utils from "../utils";
+import * as log from "npmlog";
 
 module.exports = function(defaultFuncs, api, ctx) {
   return function removeUserFromGroup(userID, threadID, callback) {

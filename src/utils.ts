@@ -1,9 +1,14 @@
-"use strict";
+import * as Bluebird from "bluebird";
+import * as _request from "request";
+import * as stream from "stream";
+import * as log from "npmlog";
 
-var bluebird = require("bluebird");
-var request = bluebird.promisify(require("request").defaults({jar: true}));
-var stream = require('stream');
-var log = require('npmlog');
+type _requestType = typeof _request;
+interface promisifiedRequest extends _requestType {
+  (op: any): Bluebird<any>;
+}
+
+let request: promisifiedRequest = <any> Bluebird.promisify(_request.defaults({jar: true}));
 
 function getHeaders(url) {
   var headers = {
@@ -18,13 +23,14 @@ function getHeaders(url) {
   return headers;
 }
 
-function isReadableStream(obj) {
+export function isReadableStream(obj) {
   return obj instanceof stream.Stream &&
     getType(obj._read) === 'Function' &&
     getType(obj._readableState) === 'Object';
 }
 
-function get(url, jar, qs) {
+// TODO: better name for `qs` (queryString ?)
+export function get(url, jar, qs?: any) {
   // I'm still confused about this
   if(getType(qs) === "Object") {
     for(var prop in qs) {
@@ -46,7 +52,7 @@ function get(url, jar, qs) {
   return request(op).then(function(res) {return res[0];});
 }
 
-function post(url, jar, form) {
+export function post(url, jar, form) {
   var op = {
     headers: getHeaders(url),
     timeout: 60000,
@@ -60,7 +66,7 @@ function post(url, jar, form) {
   return request(op).then(function(res) {return res[0];});
 }
 
-function postFormData(url, jar, form, qs) {
+export function postFormData(url, jar, form, qs) {
   var headers = getHeaders(url);
   headers['Content-Type'] = 'multipart/form-data';
   var op = {
@@ -77,14 +83,16 @@ function postFormData(url, jar, form, qs) {
   return request(op).then(function(res) {return res[0];});
 }
 
-function padZeros(val, len) {
+// Adds zeros in front of the string val until its length is equal to or greater than len
+function padZeros(val: string | any, len: number = 2): string {
     val = String(val);
-    len = len || 2;
-    while (val.length < len) val = "0" + val;
+    while (val.length < len){
+      val = "0" + val;
+    }
     return val;
 }
 
-function generateThreadingID(clientID) {
+export function generateThreadingID(clientID) {
   var k = Date.now();
   var l = Math.floor(Math.random() * 4294967295);
   var m = clientID;
@@ -112,7 +120,7 @@ function binaryToDecimal(data) {
   return ret;
 }
 
-function generateOfflineThreadingID() {
+export function generateOfflineThreadingID() {
   var ret = Date.now();
   var value = Math.floor(Math.random() * 4294967295);
   var str = ("0000000000000000000000" + value.toString(2)).slice(-22);
@@ -175,11 +183,11 @@ function presenceDecode(str) {
   }));
 }
 
-function generatePresence(userID) {
-  var time = Date.now();
+export function generatePresence(userID) {
+  let time: number = Date.now();
   return "E" + presenceEncode(JSON.stringify({
     "v": 3,
-    "time": parseInt(time / 1000, 10),
+    "time": Math.floor(time / 1000),
     "user": userID,
     "state": {
       "ut": 0,
@@ -196,7 +204,7 @@ function generatePresence(userID) {
   }))
 }
 
-function generateAccessiblityCookie() {
+export function generateAccessiblityCookie() {
   var time = Date.now();
   return encodeURIComponent(
     JSON.stringify({
@@ -212,7 +220,7 @@ function generateAccessiblityCookie() {
   ));
 }
 
-function getGUID() {
+export function getGUID() {
   /** @type {number} */
   var sectionLength = Date.now();
   /** @type {string} */
@@ -228,7 +236,7 @@ function getGUID() {
   return id;
 }
 
-function _formatAttachment(attachment1, attachment2) {
+function _formatAttachment(attachment1, attachment2?: any): any {
   // TODO: THIS IS REALLY BAD
   attachment2 = attachment2 || {id:"", image_data: {}};
 
@@ -345,7 +353,7 @@ function formatAttachment(attachments, attachmentIds, attachmentMap, shareMap) {
   }) : [];
 }
 
-function formatDeltaMessage(m){
+export function formatDeltaMessage(m){
   var md = m.delta.messageMetadata;
   return {
     type: "message",
@@ -359,7 +367,7 @@ function formatDeltaMessage(m){
   }
 }
 
-function formatMessage(m) {
+export function formatMessage(m) {
   var originalMessage = m.message ? m.message : m;
   var obj = {
     type: "message",
@@ -377,15 +385,14 @@ function formatMessage(m) {
     timestampAbsolute: originalMessage.timestamp_absolute,
     timestampRelative: originalMessage.timestamp_relative,
     timestampDatetime: originalMessage.timestamp_datetime,
+    pageID: m.type === "pages_messaging" ? m.realtime_viewer_fbid.toString() : null,
+    isGroup: obj.participantIDs.length > 2,
   };
-
-  if(m.type === "pages_messaging") obj.pageID = m.realtime_viewer_fbid.toString();
-  obj.isGroup = obj.participantIDs.length > 2;
 
   return obj;
 }
 
-function formatEvent(m) {
+export function formatEvent(m) {
   return {
     type: "event",
     threadID: m.thread_fbid.toString(),
@@ -396,7 +403,7 @@ function formatEvent(m) {
   };
 }
 
-function formatTyp(event) {
+export function formatTyp(event) {
   return {
     isTyping: !!event.st,
     from: event.from.toString(),
@@ -409,7 +416,7 @@ function formatTyp(event) {
   };
 }
 
-function formatReadReceipt(event) {
+export function formatReadReceipt(event) {
   return {
     reader: event.reader.toString(),
     time: event.time,
@@ -418,7 +425,7 @@ function formatReadReceipt(event) {
   };
 }
 
-function formatRead(event) {
+export function formatRead(event) {
   return {
     threadID: ((event.chat_ids && event.chat_ids[0]) || (event.thread_fbids && event.thread_fbids[0])).toString(),
     time: event.timestamp,
@@ -426,7 +433,7 @@ function formatRead(event) {
   };
 }
 
-function getFrom(str, startToken, endToken) {
+export function getFrom(str, startToken, endToken) {
   var start = str.indexOf(startToken) + startToken.length;
   if(start < startToken.length) return "";
 
@@ -435,11 +442,11 @@ function getFrom(str, startToken, endToken) {
   return lastHalf.substring(0, end);
 }
 
-function makeParsable(html) {
+export function makeParsable(html) {
   return html.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, "");
 }
 
-function arrToForm(form) {
+export function arrToForm(form) {
   return arrayToObject(form, function(v) {return v.name;}, function(v) {return v.val;});
 }
 
@@ -450,16 +457,16 @@ function arrayToObject(arr, getKey, getValue) {
   }, {});
 }
 
-function getSignatureID(){
+export function getSignatureID(){
   return Math.floor(Math.random() * 2147483648).toString(16);
 }
 
-function genTimestampRelative() {
+export function genTimestampRelative() {
   var d = new Date();
   return d.getHours() + ":" + padZeros(d.getMinutes());
 }
 
-function makeDefaults(html, userID) {
+export function makeDefaults(html, userID) {
   var reqCounter = 1;
   var fb_dtsg = getFrom(html, "name=\"fb_dtsg\" value=\"", "\"");
   var ttstamp = "";
@@ -513,9 +520,10 @@ function makeDefaults(html, userID) {
   };
 }
 
-function parseAndCheckLogin(jar, defaultFuncs) {
-  return function(data) {
-    return bluebird.try(function() {
+// Returns a closure
+export function parseAndCheckLogin(jar, defaultFuncs?: any): (data: any) => Bluebird<any> {
+  return (data) => {
+    return Bluebird.try(() => {
       log.verbose("parseAndCheckLogin: " + data.body);
       if (data.statusCode >= 500 && data.statusCode < 600) {
         log.warn("parseAndCheckLogin: Got status code " + data.statusCode + " retrying...");
@@ -530,7 +538,9 @@ function parseAndCheckLogin(jar, defaultFuncs) {
             .then(parseAndCheckLogin(jar));
         }
       }
-      if (data.statusCode !== 200) throw new Error("parseAndCheckLogin got status code: " + data.statusCode + ". Bailing out of trying to parse response.");
+      if (data.statusCode !== 200) {
+        throw new Error("parseAndCheckLogin got status code: " + data.statusCode + ". Bailing out of trying to parse response.");
+      }
 
       var res = null;
       try {
@@ -563,7 +573,7 @@ function parseAndCheckLogin(jar, defaultFuncs) {
   };
 }
 
-function saveCookies(jar) {
+export function saveCookies(jar) {
   return function(res) {
     var cookies = res.headers['set-cookie'] || [];
     cookies.map(function (c) {
@@ -583,7 +593,7 @@ var NUM_TO_MONTH = [
 var NUM_TO_DAY = [
   'Sun','Mon','Tue','Wed','Thu','Fri','Sat'
 ];
-function formatDate(date) {
+export function formatDate(date) {
   var d = date.getUTCDate(); d = d >= 10 ? d : '0'+d;
   var h = date.getUTCHours(); h = h >= 10 ? h : '0'+h;
   var m = date.getUTCMinutes(); m = m >= 10 ? m : '0'+m;
@@ -593,11 +603,11 @@ function formatDate(date) {
     h+':'+m+':'+s+' GMT';
 }
 
-function formatCookie(arr, url) {
+export function formatCookie(arr, url) {
   return arr[0]+"="+arr[1]+"; Path=" + arr[3] + "; Domain="+url+".com";
 }
 
-function formatThread(data) {
+export function formatThread(data) {
   return {
     threadID: data.thread_fbid.toString(),
     participants: data.participants.map(function(v) { return v.replace('fbid:', ''); }),
@@ -632,11 +642,11 @@ function formatThread(data) {
 }
 
 
-function getType(obj) {
+export function getType(obj) {
   return Object.prototype.toString.call(obj).slice(8, -1);
 }
 
-function formatPresence(presence, userID) {
+export function formatPresence(presence, userID) {
   return {
     type: "presence",
     timestamp: presence.la * 1000,
@@ -645,42 +655,11 @@ function formatPresence(presence, userID) {
   };
 }
 
-function getAppState(jar){
+export function getAppState(jar){
   return jar
     .getCookies("https://www.facebook.com")
     .concat(jar.getCookies("https://facebook.com"))
     .concat(jar.getCookies("https://www.messenger.com"));
 }
 
-module.exports = {
-  isReadableStream: isReadableStream,
-  get: get,
-  post: post,
-  postFormData: postFormData,
-  generateThreadingID: generateThreadingID,
-  generateOfflineThreadingID: generateOfflineThreadingID,
-  getGUID: getGUID,
-  getFrom: getFrom,
-  makeParsable: makeParsable,
-  arrToForm: arrToForm,
-  getSignatureID: getSignatureID,
-  getJar: request.jar,
-  genTimestampRelative: genTimestampRelative,
-  makeDefaults: makeDefaults,
-  parseAndCheckLogin: parseAndCheckLogin,
-  saveCookies: saveCookies,
-  getType: getType,
-  formatMessage: formatMessage,
-  formatDeltaMessage: formatDeltaMessage,
-  formatEvent: formatEvent,
-  formatPresence: formatPresence,
-  formatTyp: formatTyp,
-  formatCookie: formatCookie,
-  formatThread: formatThread,
-  formatReadReceipt: formatReadReceipt,
-  formatRead: formatRead,
-  generatePresence: generatePresence,
-  generateAccessiblityCookie: generateAccessiblityCookie,
-  formatDate: formatDate,
-  getAppState: getAppState,
-};
+export let getJar = request.jar;

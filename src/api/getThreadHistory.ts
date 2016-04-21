@@ -1,13 +1,16 @@
-"use strict";
+import * as utils from "../utils";
+import * as log from "npmlog";
 
-var utils = require("../utils");
-var log = require("npmlog");
+interface Form {
+  client: string;
+  request_user_id?: string;
+}
 
 module.exports = function(defaultFuncs, api, ctx) {
   return function getThreadHistory(threadID, start, end, timestamp, callback) {
     if(!callback) callback = function() {};
 
-    var form = {
+    var form: Form = {
       'client' : 'mercury'
     };
 

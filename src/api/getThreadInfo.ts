@@ -1,13 +1,16 @@
-"use strict";
+import * as utils from "../utils";
+import * as log from "npmlog";
 
-var utils = require("../utils");
-var log = require("npmlog");
+interface Form {
+  client: string;
+  request_user_id?: string;
+}
 
 module.exports = function(defaultFuncs, api, ctx) {
   return function getThreadInfo(threadID, callback) {
     if(!callback) callback = function() {};
 
-    var form = {
+    var form: Form = {
       'client' : 'mercury'
     };
 
@@ -18,7 +21,9 @@ module.exports = function(defaultFuncs, api, ctx) {
       var key = (Object.keys(userRes).length > 0) ? "user_ids" : "thread_fbids";
         form['threads['+key+'][0]'] = threadID;
 
-        if(ctx.globalOptions.pageId) form.request_user_id = ctx.globalOptions.pageId;
+        if(ctx.globalOptions.pageId) {
+          form.request_user_id = ctx.globalOptions.pageId;
+        }
 
         defaultFuncs.post("https://www.facebook.com/ajax/mercury/thread_info.php", ctx.jar, form)
         .then(utils.parseAndCheckLogin(ctx.jar, defaultFuncs))

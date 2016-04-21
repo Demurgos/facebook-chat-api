@@ -1,7 +1,12 @@
-"use strict";
+import * as utils from "../utils";
+import * as log from "npmlog";
 
-var utils = require("../utils");
-var log = require("npmlog");
+interface Form {
+  client: string;
+  "inbox[offset]": number;
+  "inbox[limit]": number;
+  request_user_id?: string;
+}
 
 module.exports = function(defaultFuncs, api, ctx) {
   return function getThreadList(start, end, callback) {
@@ -15,7 +20,7 @@ module.exports = function(defaultFuncs, api, ctx) {
 
     if (end <= start) end = start + 20;
 
-    var form = {
+    let form: Form = {
       'client' : 'mercury',
       'inbox[offset]' : start,
       'inbox[limit]' : end - start,

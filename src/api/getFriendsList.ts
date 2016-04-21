@@ -1,8 +1,6 @@
-"use strict";
-
-var cheerio = require("cheerio");
-var utils = require("../utils");
-var log = require("npmlog");
+import * as cheerio from "cheerio";
+import * as utils from "../utils";
+import * as log from "npmlog";
 
 // [almost] copy pasted from one of FB's minified file (GenderConst)
 var GENDERS = {
