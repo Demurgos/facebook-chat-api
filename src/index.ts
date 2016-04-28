@@ -4,8 +4,9 @@ import * as log from "npmlog";
 import * as fs from "fs";
 import {buildAPI} from "./api";
 import {setOptions} from "./options";
+import {CookieJar} from "request";
 
-function makeLogin(jar, email, password, loginOptions, callback) {
+function makeLogin(jar: CookieJar, email, password, loginOptions, callback) {
   return function(res) {
     var html = res.body;
     var $ = cheerio.load(html);
@@ -164,15 +165,15 @@ function makeLogin(jar, email, password, loginOptions, callback) {
 
 // Helps the login
 function loginHelper(appState, email, password, globalOptions, callback) {
-  var mainPromise = null;
-  var jar = utils.getJar();
+  let mainPromise = null;
+  let jar: CookieJar = utils.getJar();
 
   // If we're given an appState we loop through it and save each cookie
   // back into the jar.
   if(appState) {
     appState.map(function(c) {
       var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
-      jar.setCookie(<any> str, "http://" + c.domain); // TODO: depends on github:louy/typed-request/issues/1
+      jar.setCookie(str, "http://" + c.domain);
     });
 
     // Load the main page.

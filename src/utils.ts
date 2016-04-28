@@ -4,7 +4,7 @@ import * as stream from "stream";
 import * as log from "npmlog";
 import {ApiIO} from "./interfaces/api";
 
-type _requestType = typeof _request;
+type _requestType = _request.RequestAPI<_request.Request, _request.CoreOptions, _request.RequiredUriUrl>;
 interface promisifiedRequest extends _requestType {
   (op: any): Bluebird<any>;
 }
