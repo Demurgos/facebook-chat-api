@@ -38,7 +38,7 @@ export function getGetThreadInfo (defaultFuncs, api, ctx) {
           var userData = userRes[threadID];
           var info = {
             participantIDs: threadData.participants.map(id => id.split(':').pop()),
-            name: threadData.name || userData.name,
+            name: threadData.name != null ? threadData.name : userData.name,
             snippet: threadData.snippet,
             messageCount: threadData.message_count,
             emoji: threadData.custom_like_icon,
