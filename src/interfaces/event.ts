@@ -1,4 +1,4 @@
-import {Attachment} from "./attachment";
+import {Attachment} from "./attachments";
 import {UserStatuses} from "./user-status";
 
 export type EventType = 'message' | 'event' | 'typ' | 'read_receipt' | 'read' | 'presence';

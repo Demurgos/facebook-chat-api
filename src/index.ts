@@ -1,14 +1,23 @@
 import * as utils from "./utils";
 import * as cheerio from "cheerio";
 import * as log from "npmlog";
+import * as Bluebird from "bluebird";
+
 import * as fs from "fs";
 import {buildAPI} from "./api";
 import {setOptions} from "./options";
 import {CookieJar} from "request";
+import {ErrorObject} from "./interfaces/errors";
+import {JSONResult, JSONResultHeaders} from "./utils/requests";
+import {Dictionary} from "./utils/interfaces";
 
-function makeLogin(jar: CookieJar, email, password, loginOptions, callback) {
-  return function(res) {
-    var html = res.body;
+interface LoginOptions {
+  forceLogin: boolean;
+}
+
+function makeLogin(jar: CookieJar, email: string, password: string, loginOptions: LoginOptions, callback: (err: ErrorObject) => any): any {
+  return function(res: JSONResult) {
+    let html = res.body;
     var $ = cheerio.load(html);
     var arr = [];
 
@@ -21,7 +30,7 @@ function makeLogin(jar: CookieJar, email, password, loginOptions, callback) {
       return v.val && v.val.length;
     });
 
-    var form = utils.arrToForm(arr);
+    let form: any = utils.arrToForm(arr);
     form.lsd = utils.getFrom(html, "[\"LSD\",[],{\"token\":\"", "\"}");
     form.lgndim = new Buffer("{\"w\":1440,\"h\":900,\"aw\":1440,\"ah\":834,\"c\":24}").toString('base64');
     form.email = email;
@@ -53,35 +62,39 @@ function makeLogin(jar: CookieJar, email, password, loginOptions, callback) {
     return utils
       .post("https://www.facebook.com/login.php?login_attempt=1&lwv=110", jar, form)
       .then(utils.saveCookies(jar))
-      .then(function(res) {
-        var headers = res.headers;
+      .then((res: JSONResult) => {
+        let headers: JSONResultHeaders = res.headers;
         if (!headers.location) {
           throw {error: "Wrong username/password."};
         }
 
         // This means the account has login approvals turned on.
         if (headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
-          var nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
+          let nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
 
           return utils
             .get(headers.location, jar)
             .then(utils.saveCookies(jar))
-            .then(function(res) {
-              var html = res.body;
+            .then((res: JSONResult) => {
+              let html: string = res.body;
               // Make the form in advance which will contain the fb_dtsg and nh
-              var $ = cheerio.load(html);
-              var arr = [];
+              let $ = cheerio.load(html);
+              let arr = [];
               $("form input").map(function(i, v){
                 arr.push({val: $(v).val(), name: $(v).attr("name")});
               });
 
-              arr = arr.filter(function(v) {
-                return v.val && v.val.length;
+              arr = arr.filter((item) => {
+                return item.val && item.val.length;
               });
 
-              var form = utils.arrToForm(arr);
-              if (html.indexOf("Enter Security Code to Continue") > -1 ||
-                  html.indexOf("Enter Your Login Code") > -1) {
+              let form: {
+                approvals_code?: number;
+                name_action_selected?: string;
+              };
+
+              form = utils.arrToForm(arr);
+              if (html.indexOf("Enter Security Code to Continue") > -1 || html.indexOf("Enter Your Login Code") > -1) {
                 throw {
                   error: 'login-approval',
                   continue: function(code) {
@@ -115,44 +128,46 @@ function makeLogin(jar: CookieJar, email, password, loginOptions, callback) {
                       });
                   }
                 };
-              } else {
-                if (!loginOptions.forceLogin) {
-                  throw {error: "Couldn't login. Facebook might have blocked this account. Please login with a browser or enable the option 'forceLogin' and try again."};
-                }
-                if (html.indexOf("Suspicious Login Attempt") > -1) {
-                  form['submit[This was me]'] = "This was me";
-                } else {
-                  form['submit[This Is Okay]'] = "This Is Okay";
-                }
-
-                return utils
-                  .post(nextURL, jar, form)
-                  .then(utils.saveCookies(jar))
-                  .then(function() {
-                    // Use the same form (safe I hope)
-                    form.name_action_selected = 'save_device';
-
-                    return utils
-                      .post(nextURL, jar, form)
-                      .then(utils.saveCookies(jar));
-                  })
-                  .then(function(res) {
-                    var headers = res.headers;
-
-                    if (!headers.location && res.body.indexOf('Review Recent Login') > -1) {
-                      throw {error: "Something went wrong with review recent login."};
-                    }
-
-                    var appState = utils.getAppState(jar);
-
-                    // Simply call loginHelper because all it needs is the jar
-                    // and will then complete the login process
-                    return loginHelper(appState, email, password, loginOptions, callback);
-                  })
-                  .catch(function(e) {
-                    callback(e);
-                  });
               }
+
+              if (!loginOptions.forceLogin) {
+                throw {error: "Couldn't login. Facebook might have blocked this account. Please login with a browser or enable the option 'forceLogin' and try again."};
+              }
+              if (html.indexOf("Suspicious Login Attempt") > -1) {
+                form['submit[This was me]'] = "This was me";
+              } else {
+                form['submit[This Is Okay]'] = "This Is Okay";
+              }
+
+              return utils
+                .post(nextURL, jar, form)
+                .then(utils.saveCookies(jar))
+                .then((res: JSONResult) => {
+                  // Use the same form (safe I hope)
+                  form.name_action_selected = 'save_device';
+
+                  return utils
+                    .post(nextURL, jar, form)
+                    .then(utils.saveCookies(jar));
+                })
+                .then(function(res: JSONResult) {
+                  let headers = res.headers;
+
+                  if (!headers.location && res.body.indexOf('Review Recent Login') > -1) {
+                    throw {error: "Something went wrong with review recent login."};
+                  }
+
+                  var appState = utils.getAppState(jar);
+
+                  // Simply call loginHelper because all it needs is the jar
+                  // and will then complete the login process
+                  return loginHelper(appState, email, password, loginOptions, callback);
+                })
+                .catch(function(e) {
+                  // TODO: better handle end of promise
+                  callback(e);
+                  return null;
+                });
             });
         }
 
