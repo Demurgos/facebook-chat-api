@@ -46,7 +46,9 @@ export function getGetThreadHistory (defaultFuncs, api, ctx) {
           });
 
           api.getUserInfo(Object.keys(userIDs), function(err, data){
-            if (err) return callback(err); //callback({error: "Could not retrieve user information in getThreadHistory."});
+            if (err) {
+              return callback(err); //callback({error: "Could not retrieve user information in getThreadHistory."});
+            }
 
             resData.payload.actions.forEach(function (v) {
               v.sender_name = data[v.author.split(":").pop()].name;

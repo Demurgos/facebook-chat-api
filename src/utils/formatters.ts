@@ -74,8 +74,12 @@ export function formatMessage(m) {
     timestampRelative: originalMessage.timestamp_relative,
     timestampDatetime: originalMessage.timestamp_datetime,
     pageID: m.type === "pages_messaging" ? m.realtime_viewer_fbid.toString() : null,
-    isGroup: obj.participantIDs.length > 2,
   };
+
+  if(m.type === "pages_messaging") {
+    obj.pageID = m.realtime_viewer_fbid.toString();
+  }
+  (<any> obj).isGroup = obj.participantIDs.length > 2;
 
   return obj;
 }

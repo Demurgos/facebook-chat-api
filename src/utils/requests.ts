@@ -75,7 +75,7 @@ export function get(url: string, jar: request.CookieJar, queryString?: Dictionar
       if (error) {
         return cb(error);
       }
-      cb(<JSONResult> <any> response);
+      cb(null, <JSONResult> <any> response);
     });
   });
 }
@@ -96,7 +96,7 @@ export function post(url: string, jar: request.CookieJar, form: Dictionary<any>)
       if (error) {
         return cb(error);
       }
-      cb(<JSONResult> <any> response);
+      cb(null, <JSONResult> <any> response);
     });
   });
 }
@@ -121,7 +121,7 @@ export function postFormData(url: string, jar: request.CookieJar, form: Dictiona
       if (error) {
         return cb(error);
       }
-      cb(<JSONResult> <any> response);
+      cb(null, <JSONResult> <any> response);
     });
   });
 }

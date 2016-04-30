@@ -1,4 +1,4 @@
-var login = require('../index.js');
+var login = require('../build/index.js');
 var fs = require('fs');
 var assert = require('assert');
 
@@ -12,18 +12,12 @@ var userIDs = conf.userIDs;
 
 var options = { selfListen: true, listenEvents: true, logLevel: "silent"};
 var pageOptions = {logLevel: 'silent', pageID: conf.pageID};
-var getType = require('../utils').getType;
+var getType = require('../build/utils').getType;
 
 var userID = conf.user.id;
 
 var groupChatID;
 var groupChatName;
-
-function checkErr(done){
-  return function(err) {
-    if (err) done(err);
-  };
-}
 
 describe('Login:', function() {
   var api = null;
@@ -38,7 +32,9 @@ describe('Login:', function() {
 
   before(function(done) {
     login(credentials, options, function (err, localAPI) {
-      if(err) return done(err);
+      if(err) {
+        return done(err);
+      }
 
       assert(localAPI);
       api = localAPI;
@@ -76,7 +72,11 @@ describe('Login:', function() {
       msg.body === body &&
       msg.isGroup === false
     );
-    api.sendMessage({body: body}, userID, checkErr(done));
+    api.sendMessage({body: body}, userID, function(err) {
+      if (err) {
+        return done(err);
+      }
+    });
   });
 
   it('should send sticker message object (user)', function (done){
@@ -88,7 +88,11 @@ describe('Login:', function() {
       msg.attachments[0].stickerID === stickerID &&
       msg.isGroup === false
     );
-    api.sendMessage({sticker: stickerID}, userID, checkErr(done));
+    api.sendMessage({sticker: stickerID}, userID, function(err) {
+      if (err) {
+        return done(err);
+      }
+    });
   });
 
   it('should send basic string (user)', function (done){
@@ -98,17 +102,23 @@ describe('Login:', function() {
       msg.body === body &&
       msg.isGroup === false
     );
-    api.sendMessage(body, userID, checkErr(done));
+    api.sendMessage(body, userID, function(err) {
+      if (err) {
+        return done(err);
+      }
+    });
   });
 
   it('should get thread info (user)', function (done){
       api.getThreadInfo(userID, (err, info) => {
-        if (err) done(err);
+        if (err) {
+          return done(err);
+        }
 
         assert(info.participantIDs != null && info.participantIDs.length > 0);
         assert(!info.participantIDs.some(isNaN));
         assert(!info.participantIDs.some(v => v.length == 0));
-        assert(info.name != null && info.name.length > 0);
+        assert(info.name != null);
         assert(info.messageCount != null && !isNaN(info.messageCount));
         assert(info.hasOwnProperty('emoji'));
         assert(info.hasOwnProperty('nicknames'));
@@ -117,10 +127,11 @@ describe('Login:', function() {
       });
   });
 
-
   it('should get the history of the chat (user)', function (done) {
     api.getThreadHistory(userID, 0, 5, Date.now(), function(err, data) {
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       assert(getType(data) === "Array");
       assert(data.every(function(v) {return getType(v) == "Object";}));
       done();
@@ -140,7 +151,9 @@ describe('Login:', function() {
       msg.type === 'message' && msg.body === body
     );
     api.sendMessage(body, userIDs, function(err, info){
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       groupChatID = info.threadID;
       doneHack();
     });
@@ -154,7 +167,9 @@ describe('Login:', function() {
       msg.isGroup === true
     );
     api.sendMessage({body: body}, groupChatID, function(err, info){
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       assert(groupChatID === info.threadID);
     });
   });
@@ -167,7 +182,9 @@ describe('Login:', function() {
       msg.isGroup === true
     );
     api.sendMessage(body, groupChatID, function(err, info) {
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       assert(groupChatID === info.threadID);
     });
   });
@@ -182,7 +199,9 @@ describe('Login:', function() {
     });
     api.sendMessage({sticker: stickerID}, groupChatID, function (err, info) {
       assert(groupChatID === info.threadID);
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
     });
   });
 
@@ -195,14 +214,18 @@ describe('Login:', function() {
       return msg.type === 'message' && msg.body === body;
     });
     api.sendMessage({attachment: attach, body: body}, groupChatID, function(err, info){
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       assert(groupChatID === info.threadID);
     });
   });
 
   it('should get the history of the chat (group)', function (done) {
     api.getThreadHistory(groupChatID, 0, 5, Date.now(), function(err, data) {
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       assert(getType(data) === "Array");
       assert(data.every(function(v) {return getType(v) == "Object";}));
       done();
@@ -218,7 +241,11 @@ describe('Login:', function() {
         msg.logMessageData.name === title;
     });
     groupChatName = title;
-    api.setTitle(title, groupChatID, checkErr(done));
+    api.setTitle(title, groupChatID, function(err) {
+      if (err) {
+        return done(err);
+      }
+    });
   });
 
   it('should kick user', function (done){
@@ -228,7 +255,11 @@ describe('Login:', function() {
         msg.logMessageType === 'log:unsubscribe' &&
         msg.logMessageData.removed_participants.indexOf('fbid:' + id) > -1;
     });
-    api.removeUserFromGroup(id, groupChatID, checkErr(done));
+    api.removeUserFromGroup(id, groupChatID, function(err) {
+      if (err) {
+        return done(err);
+      }
+    });
   });
 
   it('should add user', function (done) {
@@ -264,7 +295,9 @@ describe('Login:', function() {
 
   it('should retrieve a list of threads', function (done) {
     api.getThreadList(0, 20, function(err, res) {
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
 
       // This checks to see if the group chat we just made
       // is in the list... it should be.
@@ -287,7 +320,9 @@ describe('Login:', function() {
 
   it('should send typing indicator', function (done) {
     var stopType = api.sendTypingIndicator(groupChatID, function(err) {
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       stopType();
       done();
     });
@@ -295,7 +330,9 @@ describe('Login:', function() {
 
   it('should get a list of online users', function (done){
     api.getOnlineUsers(function(err, res) {
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       assert(getType(res) === "Array");
       res.map(function(v) {
         assert(v.lastActive);
@@ -309,7 +346,9 @@ describe('Login:', function() {
 
   it('should get the right user info', function (done) {
     api.getUserInfo(userID, function(err, data) {
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       var user = data[userID];
       assert(user.name);
       assert(user.firstName);
@@ -324,10 +363,14 @@ describe('Login:', function() {
 
   it('should get the user ID', function(done) {
     api.getUserInfo(userIDs[0], function(err, data) {
-      checkErr(done)(err);
+      if (err) {
+        return done(err);
+      }
       var user = data[userIDs[0]];
       api.getUserID(user.name, function(err, data) {
-        checkErr(done)(err);
+        if (err) {
+          return done(err);
+        }
         assert(getType(data) === "Array");
         assert(data.some(function(val) {
           return val.userID === userIDs[0];
@@ -340,7 +383,9 @@ describe('Login:', function() {
   it('should get the list of friends', function (done) {
     api.getFriendsList(function(err, data) {
       try{
-      checkErr(done)(err);
+        if (err) {
+          return done(err);
+        }
       assert(getType(data) === "Array");
       data.map(v => {
         assert(getType(v.alternateName) === "String");
